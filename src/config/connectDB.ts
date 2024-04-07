@@ -7,7 +7,7 @@ const connectDB = async () => {
 
     if (connected) {
         console.log('MongoDB is already connected.');
-        return;
+        return connected;
     }
 
     const mongoDBURI = process.env.MONGODB_URI as string;
