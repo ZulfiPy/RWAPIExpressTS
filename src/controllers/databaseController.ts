@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import connectDB from "../config/connectDB";
+import dbConn from "../config/dbConn";
 
 const connectToDB = async (req: Request, res: Response) => {
-    const dbConnection = await connectDB();
+    const dbConnection = await dbConn();
 
     return res.json({ "databaseConnection": dbConnection });
 }
 
-module.exports = {
+export {
     connectToDB,
 }

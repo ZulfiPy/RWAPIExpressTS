@@ -1,8 +1,9 @@
-const express = require('express');
+import express from "express";
+import { connectToDB } from "../controllers/databaseController";
+
 const router = express.Router();
-const databaseController = require('../controllers/databaseController');
 
 router.route('/')
-    .get(databaseController.connectToDB)
+    .get(connectToDB)
 
-module.exports = router;
+export default router;
