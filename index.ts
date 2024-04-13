@@ -5,11 +5,17 @@ import dbConn from "./src/config/dbConn";
 import databaseRouter from "./src/routes/database";
 import tasksRouter from "./src/routes/api/tasks";
 import registerRouter from "./src/routes/register";
+import cors from "cors";
+
+import { corsOptions } from "./src/config/corsOptions";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
+
+// CORS - Cross-Origin Resource Sharing
+app.use(cors(corsOptions));
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Express + TypeScript Server');
