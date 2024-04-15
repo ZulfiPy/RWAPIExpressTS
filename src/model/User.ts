@@ -8,7 +8,8 @@ interface User {
     birthDate: String,
     username?: String,
     password: String,
-    roles: String
+    roles: String,
+    refreshTokensArray: String[],
 }
 
 const userSchema = new Schema<User>({
@@ -51,6 +52,7 @@ const userSchema = new Schema<User>({
         Editor: Number,
         Admin: Number
     },
+    refreshTokensArray: [String]
 }, {
     timestamps: true
 });
