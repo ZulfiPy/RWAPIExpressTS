@@ -23,7 +23,7 @@ export async function initPassport(app: Express) {
 
     const jwtOptions: JwtOptions = {
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-        secretOrKey: process.env.JWT_SECRET as string,
+        secretOrKey: process.env.ACCESS_TOKEN_SECRET as string,
     }
 
     app.use(passport.initialize());
