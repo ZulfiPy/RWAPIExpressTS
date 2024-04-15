@@ -10,38 +10,60 @@ const signIn = async (req: Request, res: Response) => {
     }
 
     const { username, password } = req.body;
+    const cookies = req?.cookies;
+    console.log('cookies here', JSON.stringify(cookies));
 
-    try {
-        const user = await User.findOne({ username });
+    const user = await User.findOne({ username });
 
-        if (!user) {
-            return res.status(404).json({ "message": "user not found" });
-        }
-
-        const match = await bcrypt.compare(password, user.password as string);
-
-        if (!match) {
-            return res.status(401).json({ "message": "wrong password" });
-        }
-
-        const token = jwt.sign(
-            {
-                "UserInfo": {
-                    username,
-                    roles: Object.values(user.roles).filter(Boolean)
-                }
-            },
-            process.env.JWT_SECRET as string,
-            { expiresIn: "1h" }
-        );
-
-        // refresh token logic...
-        
-        return res.status(200).json({ "jwt": token });
-    } catch (error) {
-        console.log('error occured while authentication', error);
-        return res.status(500).json({ "message": "internal server error" });
+    if (!user) {
+        return res.status(404).json({ "message": "user not found" });
     }
+
+    const match = await bcrypt.compare(password, user.password as string);
+
+    if (!match) {
+        return res.status(401).json({ "message": "wrong password" });
+    }
+
+    const token = jwt.sign(
+        {
+            "UserInfo": {
+                username,
+                roles: Object.values(user.roles).filter(Boolean)
+            }
+        },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        { expiresIn: "1h" }
+    );
+
+    // refresh token logic...
+    const refreshToken = jwt.sign(
+        { username },
+        process.env.REFRESH_TOKEN_SECRET as string,
+        { expiresIn: "4h" }
+    );
+
+    let refreshTokensArray =
+        !cookies?.jwt
+            ? user.refreshTokensArray
+            : user.refreshTokensArray.filter(token => token !== cookies.jwt);
+
+    // SCENARIO: If client has a cookie
+    if (cookies?.jwt) {
+        const foundToken = await User.findOne({ refreshTokensArray: cookies.jwt });
+        if (!foundToken) {
+            refreshTokensArray = [];
+        }
+        res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+    }
+
+    user.refreshTokensArray = [...refreshTokensArray, refreshToken];
+    const result = await user.save();
+    console.log(result);
+
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: true, maxAge: 24 * 60 * 60 * 1000 });
+
+    return res.status(200).json({ "jwt": token });
 }
 
 export {
