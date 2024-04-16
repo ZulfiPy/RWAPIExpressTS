@@ -8,6 +8,8 @@ import authRouter from "./src/routes/auth";
 
 import cors from "cors";
 import { corsOptions } from "./src/config/corsOptions";
+import { credentials } from "./src/middleware/credentials";
+import cookieParser from "cookie-parser";
 
 import passport from "passport";
 import { initPassport } from "./src/middleware/passport.mw";
@@ -19,6 +21,9 @@ const port = process.env.PORT;
 
 // initialize passport
 initPassport(app);
+
+// set 'Access-Control-Allow-Credentials' middleware
+app.use(credentials);
 
 // CORS - Cross-Origin Resource Sharing
 app.use(cors(corsOptions));
@@ -32,6 +37,9 @@ app.get('/', (req: Request, res: Response) => {
 
 // built-in middleware for json
 app.use(express.json())
+
+// middleware for parsin cookies
+app.use(cookieParser())
 
 // routes
 app.use('/register', registerRouter);
