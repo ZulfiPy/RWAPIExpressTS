@@ -11,7 +11,7 @@ const signIn = async (req: Request, res: Response) => {
 
     const { username, password } = req.body;
     const cookies = req?.cookies;
-    console.log('cookies here', JSON.stringify(cookies));
+    console.log('cookies here', JSON.stringify(cookies?.jwt));
 
     const user = await User.findOne({ username });
 
@@ -48,12 +48,7 @@ const signIn = async (req: Request, res: Response) => {
             ? user.refreshTokensArray
             : user.refreshTokensArray.filter(token => token !== cookies.jwt);
 
-    // SCENARIO: If client has a cookie
     if (cookies?.jwt) {
-        const foundToken = await User.findOne({ refreshTokensArray: cookies.jwt });
-        if (!foundToken) {
-            refreshTokensArray = [];
-        }
         res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
     }
 
