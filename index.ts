@@ -5,6 +5,7 @@ import dbConn from "./src/config/dbConn";
 import tasksRouter from "./src/routes/api/tasks";
 import registerRouter from "./src/routes/register";
 import authRouter from "./src/routes/auth";
+import refreshRouter from "./src/routes/refresh";
 
 import cors from "cors";
 import { corsOptions } from "./src/config/corsOptions";
@@ -44,6 +45,7 @@ app.use(cookieParser())
 // routes
 app.use('/register', registerRouter);
 app.use('/auth', authRouter);
+app.use('/refresh', refreshRouter);
 
 // API routes protected with passport.js authentication and isAuthorized custom middleware
 app.use('/api/tasks', passport.authenticate('jwt', { session: false }), tasksRouter);
