@@ -1,24 +1,28 @@
 import { Request, Response } from "express";
-import Task from "../model/Task";
-import dbConn from "../config/dbConn";
+import pgConn from "../config/psDbConn";
+import { getPool } from "../config/psDbConn";
 
 const getTasks = async (req: Request, res: Response) => {
-    await dbConn();
+    const database = process.env.PG_TASKS_DB as string;
+    await pgConn(database);
 
     try {
-        const tasks = await Task.find();
+        const pool = getPool(database);
 
-        if (tasks.length < 1) {
-            return res.status(404).json({ "message": "Tasks database is empty." });
+        const tasks = await pool.query('SELECT * FROM tasks');
+
+        if (tasks.rowCount === 0) {
+            return res.status(404).json({ "message": "no tasks found. database is empty." });
         }
 
-        return res.status(200).json({ "message": tasks });
+        return res.status(200).json({ "message": tasks.rows });
     } catch (error) {
-        console.log(`error occured while reading tasks: ${error}`);
-        return res.status(500).json({ "message": 'internal server error' });
+        console.log('error occured while reading tasks:', error);
+        return res.sendStatus(500);
     }
 }
 
+
 export {
-    getTasks
+    getTasks,
 }
