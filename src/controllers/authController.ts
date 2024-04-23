@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dbConn from "../config/dbConn";
 
 import User from "../model/User";
 
@@ -9,6 +10,8 @@ const signIn = async (req: Request, res: Response) => {
         return res.status(400).json({ "message": "empty body of the request" });
     }
 
+    await dbConn();
+    
     const { username, password } = req.body;
     const cookies = req?.cookies;
     console.log('cookies here', JSON.stringify(cookies?.jwt));

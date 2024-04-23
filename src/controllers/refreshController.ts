@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import User from "../model/User";
 import jwt, { VerifyErrors, JwtPayload } from "jsonwebtoken";
+import dbConn from "../config/dbConn";
 
 const refreshTokens = async (req: Request, res: Response) => {
     const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET as string;
@@ -10,6 +11,8 @@ const refreshTokens = async (req: Request, res: Response) => {
     if (!cookies?.jwt || Object.keys(cookies?.jwt).length === 0) {
         return res.status(401).json({ "message": "you do not have refresh token stored in the cookies, you have to login or provide a refresh token" });
     }
+
+    await dbConn();
 
     const oldRefreshToken = cookies.jwt;
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });

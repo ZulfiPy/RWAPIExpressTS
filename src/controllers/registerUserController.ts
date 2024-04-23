@@ -3,9 +3,9 @@ import dbConn from "../config/dbConn";
 import User from "../model/User";
 
 const registerUser = async (req: Request, res: Response) => {
-    await dbConn();
-
     if (!req?.body || Object.keys(req?.body).length < 1) return res.status(400).json({ "message": "No data provided for further registration" });
+
+    await dbConn();
 
     const { firstName, lastName, email, isikukood, birthDate, username, password } = req.body;
 
