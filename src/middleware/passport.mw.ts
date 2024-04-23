@@ -2,6 +2,7 @@ import { Express, Request, Response, NextFunction } from "express";
 import passport from "passport";
 import passportJWT from "passport-jwt";
 import { VerifiedCallback } from "passport-jwt";
+import dbConn from "../config/dbConn";
 
 import User from "../model/User";
 
@@ -30,6 +31,7 @@ export async function initPassport(app: Express) {
 
     passport.use(new jwtStrategy(jwtOptions, async (jwtPayload: JwtPayload, done: VerifiedCallback) => {
         if (jwtPayload) {
+            await dbConn();
             const { username } = jwtPayload?.UserInfo;
             try {
                 const user = await User.findOne({ username });
