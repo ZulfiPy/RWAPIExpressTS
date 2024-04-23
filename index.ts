@@ -1,6 +1,5 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
-import dbConn from "./src/config/dbConn";
 
 import tasksRouter from "./src/routes/api/tasks";
 import registerRouter from "./src/routes/register";
@@ -54,5 +53,4 @@ app.use('/api/tasks', passport.authenticate('jwt', { session: false }), tasksRou
 
 app.listen(port, async () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
-    await dbConn();
 });
