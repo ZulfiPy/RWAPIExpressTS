@@ -17,17 +17,8 @@ const getTasks = async (req: Request, res: Response) => {
     try {
         const pool = getPool(database);
 
-        if (!user.roles.includes(5150)) {
-            const tasks = await pool.query(`SELECT * FROM tasks WHERE createdby = '${username}'`);
 
-            return res.status(200).json({ "message": tasks.rowCount === 0 ? "no tasks found. database is empty" : tasks.rows });
-        }
-
-        const tasks = await pool.query('SELECT * FROM tasks');
-
-        if (tasks.rowCount === 0) {
-            return res.status(404).json({ "message": "no tasks found. database is empty." });
-        }
+        const tasks = await pool.query(`SELECT * FROM tasks WHERE createdby = '${username}'`);
 
         return res.status(200).json({ "tasks": tasks.rowCount === 0 ? "no tasks found. database is empty" : tasks.rows });
     } catch (error) {
