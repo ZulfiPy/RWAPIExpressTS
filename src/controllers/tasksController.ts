@@ -48,9 +48,30 @@ const getTasksByUsername = async (req: Request, res: Response) => {
         }
         const tasks = await pool.query(`SELECT * FROM tasks WHERE createdby = '${req.params.username}'`);
 
-        return res.status(200).json({ "tasks": tasks.rowCount === 0 ? "no tasks found. database is empty" : tasks.rows });
+        return res.status(200).json({ "tasks": tasks.rowCount === 0 ? "no tasks found by username. database is empty" : tasks.rows });
     } catch (error) {
         console.log('error occured while reading tasks by username:', error);
+        return res.status(500).json({ "message": "Something went wrong" });
+    }
+}
+
+const getOneTaskById = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const database = process.env.PG_TASKS_DB as string;
+    await pgConn(database);
+
+    try {
+        const pool = getPool(database);
+
+        const foundOneTask = await pool.query(`SELECT * FROM tasks WHERE tasks.id = ${id}`);
+
+        if (!foundOneTask.rows || foundOneTask.rows.length === 0) {
+            return res.status(401).json({ "message": `task by id ${id} not found` });
+        }
+
+        return res.status(200).json(foundOneTask.rows[0])
+    } catch (error) {
+        console.log('error occured while reading one task', error);
         return res.status(500).json({ "message": "Something went wrong" });
     }
 }
@@ -87,6 +108,7 @@ const createTask = async (req: Request, res: Response) => {
 
 export {
     getTasks,
+    getOneTaskById,
     getTasksByUsername,
     createTask,
 }
