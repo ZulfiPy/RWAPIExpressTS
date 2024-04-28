@@ -105,10 +105,44 @@ const createTask = async (req: Request, res: Response) => {
     }
 }
 
+const updateTaskById = async (req: Request, res: Response) => {
+    const database = process.env.PG_TASKS_DB as string;
+    await pgConn(database);
+
+    const user = req.user as UserAuthPayload;
+    const username = user.username;
+
+    if (!username) {
+        return res.status(401).json({ "message": "username not provided" });
+    }
+
+    if (Object.values(req.body).length === 0) {
+        return res.status(400).json({ "message": "body of your request is empty" });
+    }
+
+    const { id, title, description, priority, status } = req.body;
+
+    try {
+        const pool = getPool(database);
+
+        const editedTask = await pool.query('UPDATE tasks SET title = ($1), description = ($2), priority = ($3), status = ($4) WHERE id = ($5) AND createdby = ($6) RETURNING *;', [title, description, priority, status, id, username]);
+
+        if (editedTask.rowCount === 0) {
+            return res.status(404).json({ "message": "You do not have such task in the database" });
+        }
+
+        return res.status(200).json({ "UPDATED TASK": editedTask.rows[0] });
+
+    } catch (error) {
+        console.log('error occured while updating task by id:', error);
+        return res.status(500).json({ "message": "Something went wrong" });
+    }
+}
 
 export {
     getTasks,
     getOneTaskById,
     getTasksByUsername,
     createTask,
+    updateTaskById,
 }
