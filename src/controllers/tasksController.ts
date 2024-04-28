@@ -139,10 +139,49 @@ const updateTaskById = async (req: Request, res: Response) => {
     }
 }
 
+const deleteTaskById = async (req: Request, res: Response) => {
+    const database = process.env.PG_TASKS_DB as string;
+    await pgConn(database);
+
+    const user = req.user as UserAuthPayload;
+    const username = user.username;
+
+    if (!username) {
+        return res.status(401).json({ "message": "username not provided" });
+    }
+
+    if (!req.body?.id) {
+        return res.status(400).json({ "message": "no ID provided for further task delition" });
+    }
+
+    const { id } = req.body;
+
+    try {
+        const pool = getPool(database);
+
+        const foundTask = await pool.query('SELECT * FROM tasks WHERE id = ($1);', [id]);
+
+        if (foundTask.rowCount === 0) {
+            return res.status(404).json({ "message": `task not found the id ${id}` });
+        }
+
+        const taskToDelete = await pool.query('DELETE FROM tasks where id = ($1);', [id]);
+        console.log(taskToDelete)
+        console.log(taskToDelete.rowCount);
+        console.log(taskToDelete.rows)
+
+        return res.status(200).json({ "message": "just a response" });
+    } catch (error) {
+        console.log('error occured while task deletion:', error);
+        return res.status(500).json({ "message": "Something went wrong" });
+    }
+}
+
 export {
     getTasks,
     getOneTaskById,
     getTasksByUsername,
     createTask,
     updateTaskById,
+    deleteTaskById
 }
