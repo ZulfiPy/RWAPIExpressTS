@@ -166,11 +166,8 @@ const deleteTaskById = async (req: Request, res: Response) => {
         }
 
         const taskToDelete = await pool.query('DELETE FROM tasks where id = ($1);', [id]);
-        console.log(taskToDelete)
-        console.log(taskToDelete.rowCount);
-        console.log(taskToDelete.rows)
 
-        return res.status(200).json({ "message": "just a response" });
+        return res.status(200).json({ "message": "task deleted" });
     } catch (error) {
         console.log('error occured while task deletion:', error);
         return res.status(500).json({ "message": "Something went wrong" });
